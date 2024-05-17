@@ -1,4 +1,5 @@
-
+import javax.swing.*;
+import java.awt.*;
 import java.util.Scanner;
 
 public class DirectCacheMapping {
@@ -7,6 +8,8 @@ public class DirectCacheMapping {
     
     private int[] cache;
     private int[] tags;
+
+    
 
     public DirectCacheMapping(int cacheSize, int blockSize) {
         this.cacheSize = cacheSize;
@@ -46,6 +49,7 @@ public class DirectCacheMapping {
     public void displayCache() {
         System.out.println("Cache content:");
         for (int i = 0; i < cacheSize; i++) {
+            //fr.add(new JButton("bl"));
             if (cache[i] != -1) {
                 System.out.println("Cache line " + i + ": Address " + cache[i] + ", Tag " + tags[i]);
             } else {
@@ -54,20 +58,27 @@ public class DirectCacheMapping {
         }
     }
 
-    public static void main(String[] args) {
+        
+
+    public static void main(String[] args){
+
+        JFrame fr =new JFrame();
+        fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        fr.setSize(1600,900);
+        fr.setVisible(true);
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter cache size (number of lines): ");
-        int cacheSize = scanner.nextInt();
+       // System.out.print("Enter cache size (number of lines): ");
+        int cacheSize =Integer.parseInt(JOptionPane.showInputDialog("Enter cache size (number of lines): "));
 
-        System.out.print("Enter block size (in bytes): ");
-        int blockSize = scanner.nextInt();
+        //System.out.print("Enter block size (in bytes): ");
+        int blockSize = Integer.parseInt(JOptionPane.showInputDialog("Enter block size (in bytes): "));
 
         DirectCacheMapping cache = new DirectCacheMapping(cacheSize, blockSize);
 
         while (true) {
-            System.out.print("Enter a memory address to access (-1 to exit): ");
-            int address = scanner.nextInt();
+            //System.out.print("Enter a memory address to access (-1 to exit): ");
+            int address =  Integer.parseInt(JOptionPane.showInputDialog("Enter a memory address to access (-1 to exit): "));
             if (address == -1) {
                 break;
             }
