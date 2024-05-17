@@ -45,13 +45,25 @@ public class DirectCacheMapping {
     }
 
     public void displayCache() {
+        JFrame fr =new JFrame();
+        fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        fr.setSize(200,500);
+        fr.setVisible(true);
+        fr.setLayout(new GridLayout(cacheSize,1));
         System.out.println("Cache content:");
         for (int i = 0; i < cacheSize; i++) {
-            //fr.add(new JButton("bl"));
             if (cache[i] != -1) {
-                System.out.println("Cache line " + i + ": Address " + cache[i] + ", Tag " + tags[i]);
+                JButton butt= new JButton("Active");
+                butt.setBackground(Color.green);
+                butt.setOpaque(true);
+                fr.add(butt);
+                //System.out.println("Cache line " + i + ": Address " + cache[i] + ", Tag " + tags[i]);
             } else {
-                System.out.println("Cache line " + i + ": empty");
+                JButton butt= new JButton("Empty");
+                butt.setBackground(Color.red);
+                butt.setOpaque(true);
+                fr.add(butt);
+                //System.out.println("Cache line " + i + ": empty");
             }
         }
     }
