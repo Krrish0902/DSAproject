@@ -9,7 +9,6 @@ public class DirectCacheMapping {
     private int[] cache;
     private int[] tags;
 
-    
 
     public DirectCacheMapping(int cacheSize, int blockSize) {
         this.cacheSize = cacheSize;
@@ -36,11 +35,10 @@ public class DirectCacheMapping {
         int tag = getTag(address);
 
         if (tags[index] == tag) {
-            System.out.println("Cache hit! Address: " + address + " found in cache line " + index);
+            JOptionPane.showMessageDialog(null, "Cache hit! Address: " + address + " found in cache line " + index);
             cache[index] = address;
         } else {
-            System.out.println("Cache miss! Address: " + address + " not found in cache line " + index);
-            System.out.println("Loading block into cache line " + index);
+            JOptionPane.showMessageDialog(null, "Cache miss! Address: " + address + " not found in cache line " + index+"\nLoading block into cache line " + index);
             cache[index] = address;
             tags[index] = tag;
         }
@@ -62,29 +60,45 @@ public class DirectCacheMapping {
 
     public static void main(String[] args){
 
-        JFrame fr =new JFrame();
-        fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        fr.setSize(1600,900);
-        fr.setVisible(true);
+
         Scanner scanner = new Scanner(System.in);
 
-       // System.out.print("Enter cache size (number of lines): ");
+        String message ="Select Which Option to Perform ";
+
+        String title = "Cache Mapping Techniques";
+
+        Object[] options = {"Direct", "Assosiative", "Set-Assosiative"};
+        
+        int result = JOptionPane.showOptionDialog(
+                null, 
+                message, 
+                title,
+                JOptionPane.YES_NO_CANCEL_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                options, 
+                options[0]
+        );
+        
+
+        if(result== JOptionPane.YES_OPTION){
+
         int cacheSize =Integer.parseInt(JOptionPane.showInputDialog("Enter cache size (number of lines): "));
 
-        //System.out.print("Enter block size (in bytes): ");
         int blockSize = Integer.parseInt(JOptionPane.showInputDialog("Enter block size (in bytes): "));
 
         DirectCacheMapping cache = new DirectCacheMapping(cacheSize, blockSize);
 
         while (true) {
-            //System.out.print("Enter a memory address to access (-1 to exit): ");
             int address =  Integer.parseInt(JOptionPane.showInputDialog("Enter a memory address to access (-1 to exit): "));
             if (address == -1) {
+                JOptionPane.showMessageDialog(null,"EXITING...");
                 break;
             }
             cache.accessMemory(address);
             cache.displayCache();
         }
+    }
 
         scanner.close();
     }
