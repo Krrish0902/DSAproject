@@ -45,21 +45,24 @@ public class DirectCacheMapping {
     }
 
     public void displayCache() {
+        ImageIcon im = new ImageIcon("caheph.jpg");
         JFrame fr =new JFrame();
         fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        fr.setSize(200,500);
+        fr.setTitle("Cache Content");
+        fr.setIconImage(im.getImage());
+        fr.setSize(250,650);
         fr.setVisible(true);
         fr.setLayout(new GridLayout(cacheSize,1));
-        System.out.println("Cache content:");
+        //System.out.println("Cache content:");
         for (int i = 0; i < cacheSize; i++) {
             if (cache[i] != -1) {
-                JButton butt= new JButton("Active");
+                JButton butt= new JButton("cache line "+String.valueOf(i)+": Address "+String.valueOf(cache[i])+", Tag "+String.valueOf(tags[i]));
                 butt.setBackground(Color.green);
                 butt.setOpaque(true);
                 fr.add(butt);
                 //System.out.println("Cache line " + i + ": Address " + cache[i] + ", Tag " + tags[i]);
             } else {
-                JButton butt= new JButton("Empty");
+                JButton butt= new JButton("Cache line " + String.valueOf(i) + ": empty");
                 butt.setBackground(Color.red);
                 butt.setOpaque(true);
                 fr.add(butt);
@@ -67,13 +70,9 @@ public class DirectCacheMapping {
             }
         }
     }
-
         
 
     public static void main(String[] args){
-
-
-        Scanner scanner = new Scanner(System.in);
 
         String message ="Select Which Option to Perform ";
 
@@ -111,7 +110,5 @@ public class DirectCacheMapping {
             cache.displayCache();
         }
     }
-
-        scanner.close();
     }
 }
