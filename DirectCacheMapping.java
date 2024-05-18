@@ -4,15 +4,17 @@ import java.util.Scanner;
 
 public class DirectCacheMapping {
     private int cacheSize; // Number of cache lines
+    private int cacheSizeF;//Size of cache memory
     private int blockSize; // Size of each block in bytes
     
     private int[] cache;
     private int[] tags;
 
 
-    public DirectCacheMapping(int cacheSize, int blockSize) {
-        this.cacheSize = cacheSize;
+    public DirectCacheMapping(int cacheSizeF, int blockSize) {
+        this.cacheSizeF = cacheSizeF;
         this.blockSize = blockSize;
+        this.cacheSize=cacheSizeF/blockSize;
         cache = new int[cacheSize];
         tags = new int[cacheSize];
         // Initialize the cache and tags
@@ -94,17 +96,22 @@ public class DirectCacheMapping {
 
         if(result== JOptionPane.YES_OPTION){
 
-        int cacheSize =Integer.parseInt(JOptionPane.showInputDialog("Enter cache size (number of lines): "));
+        int Msize =Integer.parseInt(JOptionPane.showInputDialog("Enter Main-memory size: "));
+
+        int cacheSizeF =Integer.parseInt(JOptionPane.showInputDialog("Enter cache size: "));
 
         int blockSize = Integer.parseInt(JOptionPane.showInputDialog("Enter block size (in bytes): "));
 
-        DirectCacheMapping cache = new DirectCacheMapping(cacheSize, blockSize);
+        DirectCacheMapping cache = new DirectCacheMapping(cacheSizeF, blockSize);
 
         while (true) {
             int address =  Integer.parseInt(JOptionPane.showInputDialog("Enter a memory address to access (-1 to exit): "));
-            if (address == -1) {
+            if (address == -1 ) {
                 JOptionPane.showMessageDialog(null,"EXITING...");
                 break;
+            }
+            else if(address>=Msize){
+                JOptionPane.showMessageDialog(null,"Memory Access violation / Segmentation Fault");
             }
             cache.accessMemory(address);
             cache.displayCache();
