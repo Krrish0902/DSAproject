@@ -34,7 +34,11 @@ class DirectMappedCache implements Cache {
         int cacheIndex = blockNumber % numberOfBlocks;
         int tag = address / (numberOfBlocks * blockSize);
 
-        if (tags[cacheIndex] != tag && address<CacheSimulator.mMemory) {
+        if (tags[cacheIndex] == tag) {
+            contents[cacheIndex] = address; // Update content even for cache hit
+          }
+
+        else if (tags[cacheIndex] != tag && address<CacheSimulator.mMemory) {
             tags[cacheIndex] = tag;
             contents[cacheIndex] = address;
         }
@@ -83,7 +87,16 @@ class SetAssociativeCache implements Cache {
             }
         }
 
-        if (!hit && address<CacheSimulator.mMemory) {
+        for (int i = 0; i < setSize; i++) {
+            if (tags[setIndex][i] == tag) {
+              contents[setIndex][i] = address; // Update content even for cache hit
+              hit = true;
+              break;
+            }
+          }
+          
+          if (!hit && address<CacheSimulator.mMemory) 
+          {
             for (int i = 0; i < setSize; i++) {
                 if (tags[setIndex][i] == -1) {
                     tags[setIndex][i] = tag;
@@ -91,8 +104,9 @@ class SetAssociativeCache implements Cache {
                     break;
                 }
             }
-        }
-        else{
+           }
+        
+        else if(address>=CacheSimulator.mMemory){
             JOptionPane.showMessageDialog(null,"Memory Access violation / Segmentation Fault");
         }
 
