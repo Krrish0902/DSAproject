@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 public class DirectCacheMapping {
     private int cacheSize; // Number of cache lines
-    private int cacheSizeF;//Size of cache memory
     private int blockSize; // Size of each block in bytes
     
     private int[] cache;
@@ -12,7 +11,6 @@ public class DirectCacheMapping {
 
 
     public DirectCacheMapping(int cacheSizeF, int blockSize) {
-        this.cacheSizeF = cacheSizeF;
         this.blockSize = blockSize;
         this.cacheSize=cacheSizeF/blockSize;
         cache = new int[cacheSize];
@@ -52,7 +50,7 @@ public class DirectCacheMapping {
         fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         fr.setTitle("Cache Content");
         fr.setIconImage(im.getImage());
-        fr.setSize(250,650);
+        fr.setSize(500,500);
         fr.setVisible(true);
         fr.setLayout(new GridLayout(cacheSize,1));
         //System.out.println("Cache content:");
@@ -61,6 +59,7 @@ public class DirectCacheMapping {
                 JButton butt= new JButton("cache line "+String.valueOf(i)+": Address "+String.valueOf(cache[i])+", Tag "+String.valueOf(tags[i]));
                 butt.setBackground(Color.green);
                 butt.setOpaque(true);
+                butt.setPreferredSize(new Dimension(50,20));
                 fr.add(butt);
                 //System.out.println("Cache line " + i + ": Address " + cache[i] + ", Tag " + tags[i]);
             } else {
@@ -82,11 +81,10 @@ public class DirectCacheMapping {
 
         Object[] options = {"Direct", "Assosiative", "Set-Assosiative"};
         
-        int result = JOptionPane.showOptionDialog(
+        String result = (String)JOptionPane.showInputDialog(
                 null, 
                 message, 
                 title,
-                JOptionPane.YES_NO_CANCEL_OPTION, 
                 JOptionPane.QUESTION_MESSAGE, 
                 null, 
                 options, 
@@ -94,7 +92,7 @@ public class DirectCacheMapping {
         );
         
 
-        if(result== JOptionPane.YES_OPTION){
+        if(result.equals("Direct")){
 
         int Msize =Integer.parseInt(JOptionPane.showInputDialog("Enter Main-memory size: "));
 
@@ -113,8 +111,10 @@ public class DirectCacheMapping {
             else if(address>=Msize){
                 JOptionPane.showMessageDialog(null,"Memory Access violation / Segmentation Fault");
             }
+            else{
             cache.accessMemory(address);
             cache.displayCache();
+            }
         }
     }
     }
