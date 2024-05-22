@@ -2,11 +2,63 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 
 // Common interface for different cache types
 interface Cache {
     void accessMemory(int address);
 }
+
+class FullyAssociativeCache implements Cache {
+    private int[] tags;
+    private int[] contents;
+    private LinkedList<Integer> lruQueue;
+    private int numberOfBlocks;
+    private CachePanel cachePanel;
+
+    public FullyAssociativeCache(int cacheSize, int blockSize, CachePanel cachePanel) {
+        this.numberOfBlocks = cacheSize / blockSize;
+        this.tags = new int[numberOfBlocks];
+        this.contents = new int[numberOfBlocks];
+        this.lruQueue = new LinkedList<>();
+        this.cachePanel = cachePanel;
+
+        for (int i = 0; i < numberOfBlocks; i++) {
+            tags[i] = -1;
+            contents[i] = -1;
+            lruQueue.add(i);
+        }
+    }
+
+    @Override
+    public void accessMemory(int address) {
+        int blockSize = cachePanel.getBlockSize();
+        int tag = address / blockSize;
+
+        boolean hit = false;
+        for (int i = 0; i < numberOfBlocks; i++) {
+            if (tags[i] == tag) {
+                contents[i] = address;
+                lruQueue.remove((Integer) i);
+                lruQueue.addFirst(i);
+                hit = true;
+                break;
+            }
+        }
+
+        if (!hit && address < CacheSimulator.mMemory) {
+            int index = lruQueue.removeLast();
+            tags[index] = tag;
+            contents[index] = address;
+            lruQueue.addFirst(index);
+        } else if (address >= CacheSimulator.mMemory) {
+            JOptionPane.showMessageDialog(null, "Memory Access violation / Segmentation Fault");
+        }
+        cachePanel.updateCache(tags, contents);
+    }
+}
+
+
 
 // Direct Mapped Cache
 class DirectMappedCache implements Cache {
@@ -35,15 +87,12 @@ class DirectMappedCache implements Cache {
         int tag = address / (numberOfBlocks * blockSize);
 
         if (tags[cacheIndex] == tag) {
-            contents[cacheIndex] = address; // Update content even for cache hit
-          }
-
-        else if (tags[cacheIndex] != tag && address<CacheSimulator.mMemory) {
+            contents[cacheIndex] = address; // Cache hit
+        } else if (address < CacheSimulator.mMemory) {
             tags[cacheIndex] = tag;
-            contents[cacheIndex] = address;
-        }
-        else{
-            JOptionPane.showMessageDialog(null,"Memory Access violation / Segmentation Fault");
+            contents[cacheIndex] = address; // Cache miss
+        } else {
+            JOptionPane.showMessageDialog(null, "Memory Access violation / Segmentation Fault");
         }
         cachePanel.updateCache(tags, contents);
     }
@@ -82,34 +131,23 @@ class SetAssociativeCache implements Cache {
         boolean hit = false;
         for (int i = 0; i < setSize; i++) {
             if (tags[setIndex][i] == tag) {
+                contents[setIndex][i] = address; // Cache hit
                 hit = true;
                 break;
             }
         }
 
-        for (int i = 0; i < setSize; i++) {
-            if (tags[setIndex][i] == tag) {
-              contents[setIndex][i] = address; // Update content even for cache hit
-              hit = true;
-              break;
-            }
-          }
-          
-          if (!hit && address<CacheSimulator.mMemory) 
-          {
+        if (!hit && address < CacheSimulator.mMemory) {
             for (int i = 0; i < setSize; i++) {
                 if (tags[setIndex][i] == -1) {
                     tags[setIndex][i] = tag;
-                    contents[setIndex][i] = address;
+                    contents[setIndex][i] = address; // Cache miss
                     break;
                 }
             }
-           }
-        
-        else if(address>=CacheSimulator.mMemory){
-            JOptionPane.showMessageDialog(null,"Memory Access violation / Segmentation Fault");
+        } else if (address >= CacheSimulator.mMemory) {
+            JOptionPane.showMessageDialog(null, "Memory Access violation / Segmentation Fault");
         }
-
         cachePanel.updateCache(tags, contents);
     }
 }
@@ -200,8 +238,8 @@ public class CacheSimulator extends JFrame {
     private CachePanel cachePanel;
     public static int mMemory;
 
-    public CacheSimulator(int cacheSize, int blockSize, int setSize, String mappingType,int mMemory) {
-        this.mMemory=mMemory;
+    public CacheSimulator(int cacheSize, int blockSize, int setSize, String mappingType, int mMemory) {
+        CacheSimulator.mMemory = mMemory;
         setTitle("Cache Simulator");
         setSize(500, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -217,8 +255,8 @@ public class CacheSimulator extends JFrame {
         inputPanel.add(addressField);
         inputPanel.add(accessButton);
 
-        int numberOfSets = mappingType.equals("Direct Mapped") ? cacheSize / blockSize : (cacheSize / blockSize) / setSize;
-        cachePanel = new CachePanel(numberOfSets, setSize, blockSize);
+        int numberOfSets = mappingType.equals("Direct Mapped") ? cacheSize / blockSize : mappingType.equals("Set Associative") ? (cacheSize / blockSize) / setSize : cacheSize / blockSize;
+        cachePanel = new CachePanel(numberOfSets, mappingType.equals("Fully Associative") ? cacheSize / blockSize : setSize, blockSize);
         JScrollPane cacheScrollPane = new JScrollPane(cachePanel);
 
         // Add components to the frame
@@ -230,6 +268,8 @@ public class CacheSimulator extends JFrame {
             cache = new DirectMappedCache(cacheSize, blockSize, cachePanel);
         } else if (mappingType.equals("Set Associative")) {
             cache = new SetAssociativeCache(cacheSize, blockSize, setSize, cachePanel);
+        } else if (mappingType.equals("Fully Associative")) {
+            cache = new FullyAssociativeCache(cacheSize, blockSize, cachePanel);
         }
 
         // Action listener for the button
@@ -255,7 +295,7 @@ public class CacheSimulator extends JFrame {
         int blockSize = Integer.parseInt(JOptionPane.showInputDialog("Enter block size (in bytes):"));
         int setSize = 1;
 
-        String[] options = {"Direct Mapped", "Set Associative"};
+        String[] options = {"Direct Mapped","Fully Associative" , "Set Associative"};
         String mappingType = (String) JOptionPane.showInputDialog(null, "Choose Cache Mapping Type:", "Cache Mapping Type", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
         if (mappingType.equals("Set Associative")) {
@@ -263,8 +303,7 @@ public class CacheSimulator extends JFrame {
         }
 
         // Create and display the simulator
-        CacheSimulator simulator = new CacheSimulator(cacheSize, blockSize, setSize, mappingType,mMemory);
+        CacheSimulator simulator = new CacheSimulator(cacheSize, blockSize, setSize, mappingType, mMemory);
         simulator.setVisible(true);
     }
 }
- 
