@@ -38,6 +38,7 @@ class FullyAssociativeCache implements Cache {
         boolean hit = false;
         for (int i = 0; i < numberOfBlocks; i++) {
             if (tags[i] == tag) {
+                JOptionPane.showMessageDialog(null,"CACHE HIT");
                 contents[i] = address;
                 lruQueue.remove((Integer) i);
                 lruQueue.addFirst(i);
@@ -47,6 +48,7 @@ class FullyAssociativeCache implements Cache {
         }
 
         if (!hit && address < CacheSimulator.mMemory) {
+            JOptionPane.showMessageDialog(null,"CACHE MISS");
             int index = lruQueue.removeLast();
             tags[index] = tag;
             contents[index] = address;
@@ -58,9 +60,6 @@ class FullyAssociativeCache implements Cache {
     }
 }
 
-
-
-// Direct Mapped Cache
 class DirectMappedCache implements Cache {
     private int[] tags;
     private int[] contents;
@@ -87,10 +86,12 @@ class DirectMappedCache implements Cache {
         int tag = address / (numberOfBlocks * blockSize);
 
         if (tags[cacheIndex] == tag) {
-            contents[cacheIndex] = address; // Cache hit
-        } else if (address < CacheSimulator.mMemory) {
+            JOptionPane.showMessageDialog(null,"CACHE HIT");
+            contents[cacheIndex] = address; // Update content even for cache hit
+        } else if (tags[cacheIndex] != tag && address < CacheSimulator.mMemory) {
+            JOptionPane.showMessageDialog(null,"CACHE MISS");
             tags[cacheIndex] = tag;
-            contents[cacheIndex] = address; // Cache miss
+            contents[cacheIndex] = address;
         } else {
             JOptionPane.showMessageDialog(null, "Memory Access violation / Segmentation Fault");
         }
@@ -98,10 +99,10 @@ class DirectMappedCache implements Cache {
     }
 }
 
-// Set Associative Cache
 class SetAssociativeCache implements Cache {
     private int[][] tags;
     private int[][] contents;
+    private LinkedList<Integer>[] lruQueue;
     private int numberOfSets;
     private int setSize;
     private CachePanel cachePanel;
@@ -111,12 +112,15 @@ class SetAssociativeCache implements Cache {
         this.setSize = setSize;
         this.tags = new int[numberOfSets][setSize];
         this.contents = new int[numberOfSets][setSize];
+        this.lruQueue = new LinkedList[numberOfSets];
         this.cachePanel = cachePanel;
 
         for (int i = 0; i < numberOfSets; i++) {
+            lruQueue[i] = new LinkedList<>();
             for (int j = 0; j < setSize; j++) {
                 tags[i][j] = -1;
                 contents[i][j] = -1;
+                lruQueue[i].add(j);
             }
         }
     }
@@ -131,20 +135,21 @@ class SetAssociativeCache implements Cache {
         boolean hit = false;
         for (int i = 0; i < setSize; i++) {
             if (tags[setIndex][i] == tag) {
-                contents[setIndex][i] = address; // Cache hit
+                JOptionPane.showMessageDialog(null,"CACHE HIT");
+                contents[setIndex][i] = address;
+                lruQueue[setIndex].remove((Integer) i);
+                lruQueue[setIndex].addFirst(i);
                 hit = true;
                 break;
             }
         }
 
         if (!hit && address < CacheSimulator.mMemory) {
-            for (int i = 0; i < setSize; i++) {
-                if (tags[setIndex][i] == -1) {
-                    tags[setIndex][i] = tag;
-                    contents[setIndex][i] = address; // Cache miss
-                    break;
-                }
-            }
+            JOptionPane.showMessageDialog(null,"CACHE MISS");
+            int lruIndex = lruQueue[setIndex].removeLast();
+            tags[setIndex][lruIndex] = tag;
+            contents[setIndex][lruIndex] = address;
+            lruQueue[setIndex].addFirst(lruIndex);
         } else if (address >= CacheSimulator.mMemory) {
             JOptionPane.showMessageDialog(null, "Memory Access violation / Segmentation Fault");
         }
@@ -152,7 +157,6 @@ class SetAssociativeCache implements Cache {
     }
 }
 
-// CachePanel Class for Visualization
 class CachePanel extends JPanel {
     private int[][] tags;
     private int[][] contents;
@@ -190,7 +194,7 @@ class CachePanel extends JPanel {
         repaint();
     }
 
-    // Overloaded method to update cache for Set Associative Cache
+    // Overloaded method to update cache for Set Associative and Fully Associative Cache
     public void updateCache(int[][] newTags, int[][] newContents) {
         this.tags = newTags;
         this.contents = newContents;
@@ -246,7 +250,7 @@ public class CacheSimulator extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components
-        addressField = new JTextField(20);
+        addressField = new JTextField(15);
         accessButton = new JButton("Access Memory");
 
         // Panel for input
@@ -255,7 +259,8 @@ public class CacheSimulator extends JFrame {
         inputPanel.add(addressField);
         inputPanel.add(accessButton);
 
-        int numberOfSets = mappingType.equals("Direct Mapped") ? cacheSize / blockSize : mappingType.equals("Set Associative") ? (cacheSize / blockSize) / setSize : cacheSize / blockSize;
+        int numberOfSets = mappingType.equals("Direct Mapped") ? cacheSize / blockSize :
+                mappingType.equals("Set Associative") ? (cacheSize / blockSize) / setSize : cacheSize / blockSize;
         cachePanel = new CachePanel(numberOfSets, mappingType.equals("Fully Associative") ? cacheSize / blockSize : setSize, blockSize);
         JScrollPane cacheScrollPane = new JScrollPane(cachePanel);
 
@@ -295,7 +300,7 @@ public class CacheSimulator extends JFrame {
         int blockSize = Integer.parseInt(JOptionPane.showInputDialog("Enter block size (in bytes):"));
         int setSize = 1;
 
-        String[] options = {"Direct Mapped","Fully Associative" , "Set Associative"};
+        String[] options = {"Direct Mapped", "Fully Associative", "Set Associative"};
         String mappingType = (String) JOptionPane.showInputDialog(null, "Choose Cache Mapping Type:", "Cache Mapping Type", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
         if (mappingType.equals("Set Associative")) {
