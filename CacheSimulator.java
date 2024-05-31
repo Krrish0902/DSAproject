@@ -105,11 +105,13 @@ class SetAssociativeCache implements Cache {
     private LinkedList<Integer>[] lruQueue;
     private int numberOfSets;
     private int setSize;
+    private int cacheLine;
     private CachePanel cachePanel;
 
     public SetAssociativeCache(int cacheSize, int blockSize, int setSize, CachePanel cachePanel) {
         this.numberOfSets = (cacheSize / blockSize) / setSize;
         this.setSize = setSize;
+        this.cacheLine=cacheSize/blockSize;
         this.tags = new int[numberOfSets][setSize];
         this.contents = new int[numberOfSets][setSize];
         this.lruQueue = new LinkedList[numberOfSets];
@@ -128,7 +130,7 @@ class SetAssociativeCache implements Cache {
     @Override
     public void accessMemory(int address) {
         int blockSize = cachePanel.getBlockSize();
-        int blockNumber = address / blockSize;
+        int blockNumber = address /blockSize;
         int setIndex = blockNumber % numberOfSets;
         int tag = address / (numberOfSets * blockSize);
 
@@ -222,7 +224,7 @@ class CachePanel extends JPanel {
                 if (tags[i][j] == -1) {
                     text = "Set " + i + ", Block " + j + ": [Empty]";
                 } else {
-                    text = "Set " + i + ", Block " + j + ": Tag " + tags[i][j] + ", Content " + contents[i][j];
+                    text = "Set " + i + ", Block " + (contents[i][j]/blockSize) + ": Tag " + tags[i][j] + ", Content " + contents[i][j];
                 }
                 g.drawString(text, x + 10, y + 20);
             }
@@ -259,11 +261,33 @@ public class CacheSimulator extends JFrame {
         inputPanel.add(addressField);
         inputPanel.add(accessButton);
 
-        int numberOfSets = mappingType.equals("Direct Mapped") ? cacheSize / blockSize :
-                mappingType.equals("Set Associative") ? (cacheSize / blockSize) / setSize : cacheSize / blockSize;
-        cachePanel = new CachePanel(numberOfSets, mappingType.equals("Fully Associative") ? cacheSize / blockSize : setSize, blockSize);
-        JScrollPane cacheScrollPane = new JScrollPane(cachePanel);
+        int numberOfSets;
+if ("Direct Mapped".equals(mappingType)) {
+    numberOfSets = cacheSize / blockSize;
+} else if ("Set Associative".equals(mappingType)) {
+    if (setSize == 0) {
+        throw new IllegalArgumentException("Set size cannot be zero for Set Associative mapping.");
+    }
+    numberOfSets = (cacheSize / blockSize) / setSize;
+} else if ("Fully Associative".equals(mappingType)) {
+    numberOfSets = 1; // Fully associative cache has one set
+} else {
+    throw new IllegalArgumentException("Invalid mapping type.");
+}
 
+int associativity;
+if ("Fully Associative".equals(mappingType)) {
+    associativity = cacheSize / blockSize;
+} else {
+    associativity = setSize;
+}
+
+if (blockSize == 0) {
+    throw new IllegalArgumentException("Block size cannot be zero.");
+}
+
+CachePanel cachePanel = new CachePanel(numberOfSets, associativity, blockSize);
+JScrollPane cacheScrollPane = new JScrollPane(cachePanel);
         // Add components to the frame
         add(inputPanel, BorderLayout.NORTH);
         add(cacheScrollPane, BorderLayout.CENTER);
