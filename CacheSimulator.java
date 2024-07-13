@@ -105,13 +105,11 @@ class SetAssociativeCache implements Cache {
     private LinkedList<Integer>[] lruQueue;
     private int numberOfSets;
     private int setSize;
-    private int cacheLine;
     private CachePanel cachePanel;
 
     public SetAssociativeCache(int cacheSize, int blockSize, int setSize, CachePanel cachePanel) {
         this.numberOfSets = (cacheSize / blockSize) / setSize;
         this.setSize = setSize;
-        this.cacheLine=cacheSize/blockSize;
         this.tags = new int[numberOfSets][setSize];
         this.contents = new int[numberOfSets][setSize];
         this.lruQueue = new LinkedList[numberOfSets];
@@ -241,7 +239,6 @@ public class CacheSimulator extends JFrame {
     private JTextField addressField;
     private JButton accessButton;
     private Cache cache;
-    private CachePanel cachePanel;
     public static int mMemory;
 
     public CacheSimulator(int cacheSize, int blockSize, int setSize, String mappingType, int mMemory) {
@@ -270,17 +267,13 @@ if ("Direct Mapped".equals(mappingType)) {
     }
     numberOfSets = (cacheSize / blockSize) / setSize;
 } else if ("Fully Associative".equals(mappingType)) {
-    numberOfSets = 1; // Fully associative cache has one set
+    numberOfSets =cacheSize / blockSize; // Fully associative cache has one set
 } else {
     throw new IllegalArgumentException("Invalid mapping type.");
 }
 
 int associativity;
-if ("Fully Associative".equals(mappingType)) {
-    associativity = cacheSize / blockSize;
-} else {
-    associativity = setSize;
-}
+associativity = setSize;
 
 if (blockSize == 0) {
     throw new IllegalArgumentException("Block size cannot be zero.");
