@@ -166,6 +166,11 @@ class CachePanel extends JPanel {
     private static final int BLOCK_HEIGHT = 30;
     private static final int PADDING = 10;
     private int blockSize;
+    @Override
+    public void setBackground(Color bg) {
+        // TODO Auto-generated method stub
+        super.setBackground(new Color(0,25,75));
+    }
 
     public CachePanel(int numberOfSets, int setSize, int blockSize) {
         this.numberOfSets = numberOfSets;
@@ -212,19 +217,19 @@ class CachePanel extends JPanel {
                 if (tags[i][j] == -1) {
                     g.setColor(Color.RED);
                 } else {
-                    g.setColor(Color.GREEN);
+                    g.setColor(new Color(0,175,0));
                 }
-                g.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
+                g.fillRect(x+120, y, BLOCK_WIDTH, BLOCK_HEIGHT);
 
-                g.setColor(Color.BLACK);
-                g.drawRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
+                g.setColor(Color.white);
+                g.drawRect(x+120, y, BLOCK_WIDTH, BLOCK_HEIGHT);
                 String text;
                 if (tags[i][j] == -1) {
                     text = "Set " + i + ", Block " + j + ": [Empty]";
                 } else {
                     text = "Set " + i + ", Block " + (contents[i][j]/blockSize) + ": Tag " + tags[i][j] + ", Content " + contents[i][j];
                 }
-                g.drawString(text, x + 10, y + 20);
+                g.drawString(text, x + 130, y + 20);
             }
         }
     }
