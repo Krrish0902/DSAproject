@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
+import java.util.Random;
 
 // Common interface for different cache types
 interface Cache {
@@ -27,6 +28,16 @@ class FullyAssociativeCache implements Cache {
             tags[i] = -1;
             contents[i] = -1;
             lruQueue.add(i);
+        }
+
+        Random rand=new Random();
+
+
+        for(int i=0;i<numberOfBlocks;i++)
+        {
+            int r1= rand.nextInt(numberOfBlocks);
+            lruQueue.remove((Integer) r1);
+            lruQueue.addLast(r1);
         }
     }
 
@@ -162,7 +173,7 @@ class CachePanel extends JPanel {
     private int[][] contents;
     private int numberOfSets;
     private int setSize;
-    private static final int BLOCK_WIDTH = 200;
+    private static final int BLOCK_WIDTH = 220;
     private static final int BLOCK_HEIGHT = 30;
     private static final int PADDING = 10;
     private int blockSize;
