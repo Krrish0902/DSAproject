@@ -1,7 +1,7 @@
 
 # Cache Simulator
 
-# Overview
+## Overview
 
 This project is a Cache Simulator that allows users to simulate the behavior of different cache mapping techniques. The simulator provides a graphical user interface (GUI) for users to enter memory addresses and observe how they are stored or accessed in the cache. It supports three types of cache mapping:
 - **Direct Mapped**
@@ -10,13 +10,13 @@ This project is a Cache Simulator that allows users to simulate the behavior of 
 
 The simulator also visualizes the state of the cache, showing hits and misses for each memory access.
 
-# Features
+### Features
 
 - **Supports Multiple Cache Mapping Techniques**: Direct Mapped, Fully Associative, and Set Associative caches.
 - **Visual Representation of Cache State**: The GUI displays the cache's tags and contents, updated with each memory access.
 - **Memory Access Feedback**: Alerts the user if there is a cache hit, cache miss, or memory access violation (e.g., segmentation fault).
 
-# Prerequisites
+### Prerequisites
 
 - **Java Development Kit (JDK)**: Ensure that JDK is installed on your system. The code is written in Java, so you'll need the JDK to compile and run it.
 
